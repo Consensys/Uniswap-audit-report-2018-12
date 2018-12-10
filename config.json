@@ -1,0 +1,6 @@
+{
+  "client_name": "Uniswap",
+  "client_audit_report_repo": "https://github.com/ConsenSys/Uniswap-audit-report-2018-12",
+  "internal_audit_repo": "https://github.com/ConsenSys/Uniswap-audit-internal-2018-12",
+  "github_todo_audit_repo": "https://github.com/ConsenSys/todo-audits"
+}
