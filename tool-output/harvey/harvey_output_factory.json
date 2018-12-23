@@ -1,7 +1,7 @@
 {
     "warnings": [
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage write after call",
@@ -18,7 +18,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage write after call",
@@ -35,7 +35,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage read after call",
@@ -52,7 +52,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage read after call",
@@ -69,7 +69,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage read after call",
@@ -86,7 +86,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage write after call",
@@ -103,7 +103,7 @@
             "weaknessId": "SWC-107"
         },
         {
-            "time": 8785900,
+            "time": 10744200,
             "tryCount": 4,
             "stepCount": 1,
             "type": "storage write after call",
@@ -121,7 +121,8 @@
         }
     ],
     "covered-paths": 22,
+    "covered-instructions": 548,
     "not-out-of-gas-covered-paths": 22,
-    "time-secs": 28804.8968483,
-    "energy-used": 37790053
+    "time-secs": 21600.7808224,
+    "energy-used": 28048565
 }
