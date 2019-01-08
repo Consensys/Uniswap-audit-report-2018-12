@@ -23,11 +23,11 @@ ________________
 #### Audit Details
 * **Project Name:** Uniswap
 * **Client Name:** Uniswap
-* **Client Contact:** YYY
+* **Client Contact:** Hayden Adams
 * **Auditors:** John Mardlin, Gonçalo Sá, Dean Pierce, Sergii Kravchenko, Daniel Luca 
 * **GitHub :** ConsenSys/Uniswap-audit-internal-2018-12
 * **Languages:** Vyper
-* **Date:** XXX
+* **Date:** January 11th 2019
 
 #### Number of issues per severity
 
