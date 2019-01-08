@@ -1,5 +1,5 @@
-$ myth -x -f exchange.txt
-
+```console
+$ docker run -v $(pwd):/tmp mythril/myth:0.19.11 -x -f /tmp/exchange.txt
 ==== Multiple Calls ====
 SWC ID: 113
 Type: Informational
@@ -21,6 +21,16 @@ Function name: fallback
 PC address: 1183
 Estimated Gas Usage: 4572 - 42196
 The return value of an external call is not checked. Note that execution continue even if the called contract throws.
+--------------------
+
+==== External call to user-supplied address ====
+SWC ID: 107
+Type: Warning
+Contract: MAIN
+Function name: fallback
+PC address: 1317
+Estimated Gas Usage: 17110 - 95959
+The contract executes a function call with high gas to a user-supplied address. Note that the callee can contain arbitrary code and may re-enter any function in this contract. Review the business logic carefully to prevent unanticipated effects on the contract state.
 --------------------
 
 ==== Unchecked CALL return value ====
@@ -72,3 +82,4 @@ PC address: 5764
 Estimated Gas Usage: 3404 - 43747
 The return value of an external call is not checked. Note that execution continue even if the called contract throws.
 --------------------
+```

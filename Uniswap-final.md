@@ -1,4 +1,4 @@
-# _Project Name_ Audit
+# Uniswap Audit
 
 
 <img height="100px" Hspace="30" Vspace="10" align="right" src="static-content/diligence.png"/> 
@@ -11,18 +11,16 @@
   * [1.4 Key Observations/Recommendations](#14-key-observationsrecommendations)
 * [2 Issue Overview](#2-issue-overview)
 * [3 Issue Detail](#3-issue-detail)
-  * [3.1 Frontrunners can skim ~2.5% from every transaction. ([30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30))](#31-frontrunners-can-skim-25-from-every-transaction-30httpsgithubcomconsensysuniswap-audit-internal-2018-12issues30)
-  * [3.2 The factory contract should use a constructor ([23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23))](#32-the-factory-contract-should-use-a-constructor-23httpsgithubcomconsensysuniswap-audit-internal-2018-12issues23)
-  * [3.3 Consider using transferFrom() in removeLiquidity() function. ([31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31))](#33-consider-using-transferfrom-in-removeliquidity-function-31httpsgithubcomconsensysuniswap-audit-internal-2018-12issues31)
-  * [3.4 Redundant checks in factory contract ([24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24))](#34-redundant-checks-in-factory-contract-24httpsgithubcomconsensysuniswap-audit-internal-2018-12issues24)
+  * [3.1 Frontrunners can skim ~2.5% from every transaction.](#31-frontrunners-can-skim-25-from-every-transaction)
+  * [3.2 The factory contract should use a constructor](#32-the-factory-contract-should-use-a-constructor)
+  * [3.3 Consider using transferFrom() in removeLiquidity() function.](#33-consider-using-transferfrom-in-removeliquidity-function)
+  * [3.4 Redundant checks in factory contract](#34-redundant-checks-in-factory-contract)
 * [4 Threat Model](#4-threat-model)
   * [4.1 Overview](#41-overview)
   * [4.2 Detail](#42-detail)
 * [5 Tool based analysis](#5-tool-based-analysis)
   * [5.1 Mythril](#51-mythril)
-  * [5.2 Solhint](#52-solhint)
-  * [5.3 Surya](#53-surya)
-  * [5.4 Odyssey](#54-odyssey)
+  * [5.2 Odyssey](#52-odyssey)
 * [6 Test Coverage Measurement](#6-test-coverage-measurement)
 * [Appendix 1 - File Hashes](#appendix-1---file-hashes)
 * [Appendix 2 - Severity](#appendix-2---severity)
@@ -48,12 +46,12 @@ ________________
 <img height="120px" Hspace="30" Vspace="10" align="right" src="static-content/dashboard.png"/> 
 
 #### Audit Details
-* **Project Name:** XXX
-* **Client Name:** YYY
+* **Project Name:** Uniswap
+* **Client Name:** Uniswap
 * **Client Contact:** YYY
-* **Auditors:** YYY
-* **GitHub :** XXX
-* **Languages:** Solidity
+* **Auditors:** John Mardlin, Gonçalo Sá, Dean Pierce, Sergii Kravchenko, Daniel Luca 
+* **GitHub :** ConsenSys/Uniswap-audit-internal-2018-12
+* **Languages:** Vyper
 * **Date:** XXX
 
 #### Number of issues per severity
@@ -88,15 +86,21 @@ The focus of the audit was to verify that the smart contract system is secure, r
 #### Documentation
 
 The following documentation was available to the audit team:
-<!--
-* The [README](LINK) with detailed description about the mechanics of the crowd sale.
-* The [White Paper](LINK) explaining the concept behind interactive token crowd sales.
--->
+
+- [White Paper](https://hackmd.io/C-DvwDSfSxuh-Gd4WKE_ig#) 
+- [Docs](https://docs.uniswap.io/)
+- [Runtime Verifications Formal Specification of Market Maker Model](https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf)
 
 #### Scope
 
+| Contract file name  |                SHA1 Hash                 |
+| ------------------- | ---------------------------------------- |
+| uniswap_exchange.vy | 9b058dc847040594bcac502effab5bda0de5fa3c |
+| uniswap_factory.vy  | 97d49145ec4fc6aa31099cb51c0c2f69b6e487b7 |
+|                     |                                          |
+
 #### Design
-  
+
 
 ### 1.4 Key Observations/Recommendations  
 
@@ -126,10 +130,10 @@ The following table contains all the issues discovered during the audit. The iss
 
 | Chapter | Issue Title  | Issue Status | Severity |
 | ------------- | ------------- | ------------- | ------------- |
- | 3.1 | [Frontrunners can skim ~2.5% from every transaction.](#31-frontrunners-can-skim-~2-5%-from-every-transaction-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.2 | [The factory contract should use a constructor](#32-the-factory-contract-should-use-a-constructor) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.3 | [Consider using transferFrom() in removeLiquidity() function.](#33-consider-using-transferfrom()-in-removeliquidity()-function-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.4 | [Redundant checks in factory contract](#34-redundant-checks-in-factory-contract) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.1 | [Frontrunners can skim ~2.5% from every transaction.](#31-frontrunners-can-skim-~2-5%-from-every-transaction-) | <img height="30px" src="static-content/open.png"/>| <img height="30px" src="static-content/medium.png"/> | 
+ | 3.2 | [The factory contract should use a constructor](#32-the-factory-contract-should-use-a-constructor) | <img height="30px" src="static-content/open.png"/>| <img height="30px" src="static-content/medium.png"/> | 
+ | 3.3 | [Consider using transferFrom() in removeLiquidity() function.](#33-consider-using-transferfrom()-in-removeliquidity()-function-) | <img height="30px" src="static-content/open.png"/>| <img height="30px" src="static-content/minor.png"/> | 
+ | 3.4 | [Redundant checks in factory contract](#34-redundant-checks-in-factory-contract) | <img height="30px" src="static-content/open.png"/>| <img height="30px" src="static-content/minor.png"/> | 
 
 
 
@@ -137,11 +141,11 @@ The following table contains all the issues discovered during the audit. The iss
 ## 3 Issue Detail  
 
 
-### 3.1 Frontrunners can skim ~2.5% from every transaction. ([#30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)) 
+### 3.1 Frontrunners can skim ~2.5% from every transaction. 
 
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)| The issue is currently under review |
+| Severity  | Status | Link | Remediation Comment |
+| ------------- | ------------- | ------------- | ------------- |
+| <img height="30px" src="static-content/medium.png"/> |  <img height="30px" src="static-content/open.png"/> | [ issues/30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)| The issue is currently under review |
 
 
 The default client contains a constant called `ALLOWED_SLIPPAGE` which states how much the price is allowed to change. This constant is set to 0.025 in `uniswap-frontend/src/pages/Swap/index.js:367`. This means that the price can go up ~2.5% from what the buyer expects, and the order will still get executed.
@@ -156,11 +160,11 @@ Even with zero slippage, the attacker can still make a large buy order, watch th
 
 Bancor uses a front-running mitigation where there was a maximum gas value, so a user using the maximum gas value cannot be front-run by an attacker increasing the gas for their transaction. This approach might be worth looking into.
 
-### 3.2 The factory contract should use a constructor ([#23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)) 
+### 3.2 The factory contract should use a constructor 
 
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)| The issue is currently under review |
+| Severity  | Status | Link | Remediation Comment |
+| ------------- | ------------- | ------------- | ------------- |
+| <img height="30px" src="static-content/medium.png"/> |  <img height="30px" src="static-content/open.png"/> | [ issues/23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)| The issue is currently under review |
 
 
 **Description**
@@ -177,11 +181,11 @@ The easiest solution would be to turn the initialization method into the constru
 Another possible remediation would be to introduce a "factory deployer" contract that executes both message calls in a single transaction.
 
 
-### 3.3 Consider using transferFrom() in removeLiquidity() function. ([#31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)) 
+### 3.3 Consider using transferFrom() in removeLiquidity() function. 
 
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)| The issue is currently under review |
+| Severity  | Status | Link | Remediation Comment |
+| ------------- | ------------- | ------------- | ------------- |
+| <img height="30px" src="static-content/minor.png"/> |  <img height="30px" src="static-content/open.png"/> | [ issues/31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)| The issue is currently under review |
 
 
 To prevent issues like the BNB issue[1] from coming up in the future, consider using the same transfer function to add and remove liquidity. Hopefully this will ensure that if any non-compliant tokens get added in the future, it will be much more unlikely to get into a state where liquidity can be added, but not removed.
@@ -189,11 +193,11 @@ To prevent issues like the BNB issue[1] from coming up in the future, consider u
 [1] https://twitter.com/UniswapExchange/status/1072286773554876416
 
 
-### 3.4 Redundant checks in factory contract ([#24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)) 
+### 3.4 Redundant checks in factory contract 
 
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)| The issue is currently under review |
+| Severity  | Status | Link | Remediation Comment |
+| ------------- | ------------- | ------------- | ------------- |
+| <img height="30px" src="static-content/minor.png"/> |  <img height="30px" src="static-content/open.png"/> | [ issues/24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)| The issue is currently under review |
 
 
 **Description**
@@ -202,7 +206,7 @@ In `uniswap_factory.vy` there are some redundant assertions:
 
 
 
-[contracts/uniswap_factory.vy:L15](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15)
+[contracts/uniswap_factory.vy:L14](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15)
 
 ```Solidity
     assert template != ZERO_ADDRESS
@@ -214,7 +218,7 @@ and
 
 
 
-[contracts/uniswap_factory.vy:L21](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21)
+[contracts/uniswap_factory.vy:L20](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21)
 
 ```Solidity
     assert self.exchangeTemplate != ZERO_ADDRESS
@@ -226,7 +230,7 @@ Due to the fact that the Vyper compiler actually asserts that the code size at t
 
 
 
-[contracts/uniswap_factory.vy:L24](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24)
+[contracts/uniswap_factory.vy:L23](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24)
 
 ```Solidity
     Exchange(exchange).setup(token)
@@ -266,22 +270,12 @@ The issues from the tool based analysis have been reviewed and the relevant issu
 
 Mythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis to detect various types of issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More details on Mythril's current vulnerability coverage can be found [here](https://github.com/ConsenSys/mythril/wiki).
 
-The raw output of the Mythril vulnerability scan can be found [here](./tool-output/mythril/mythril_report.md).
+The raw output of the Mythril vulnerability scan can for each contract:
 
-### 5.2 Solhint 
+* [uniswap_exchange.vy](./tool-output/mythril/mythril_output_exchange.md)
+* [uniswap_factory.vy](./tool-output/mythril/mythril_output_factory.md)
 
-<img height="120px" align="right" src="static-content/solhint.png"/>
-
-This is an open source project for linting Solidity code. The project provides both Security and Style Guide validations. The issues of Solhint were analyzed for security relevant issues only. It is still recommended to use Solhint during development to improve code quality while writing smart contracts. 
-
-The raw output of the Solhint vulnerability scan can be found [here](./tool-output/solhint/solhint_report.md). 
-
-### 5.3 Surya
-Surya is an utility tool for smart contract systems. It provides a number of visual outputs and information about structure of smart contracts. It also supports querying the function call graph in multiple ways to aid in the manual inspection and control flow analysis of contracts.
-
-A complete list of functions with their visibility and modifiers can be found [here](./tool-output/surya/surya_report.md).
-
-### 5.4 Odyssey 
+### 5.2 Odyssey 
 
 <img height="120px" align="right" src="static-content/odyssey.png"/>
 
@@ -292,24 +286,23 @@ In its current version Odyssey helps to better communicate audit issues to devel
 
 ## 6 Test Coverage Measurement
 
-<!-- 
+Testing is implemented using [eth-tester](https://github.com/ethereum/eth-tester). 21 tests are included in the test suite and they all pass.
 
-Testing is implemented using the YYY. XXX tests are included in the test suite and they all pass.
-
-The [Solidity-Coverage](https://github.com/sc-forks/solidity-coverage) tool was used to measure the portion of the code base exercised by the test suite, and identify areas with little or no coverage. Specific sections of the code where necessary test coverage is missing are included in chapter 3 - Issues.
+Specific sections of the code where necessary test coverage is missing are included in chapter [3 - Issues](#3-issue-detail).
 
 It's important to note that "100% test coverage" is not a silver bullet. Our review also included a inspection of the test suite, to ensure that testing included important edge cases.
 
-The state of test coverage at the time of our review can be viewed in html rendered from the Github repo, or by opening the `index.html` file from the [coverage report](...) directory in a browser.
-
--->
-
+The state of test coverage at the time of our review can be viewed in [coverage_output.md](./coverage-reports/coverage_output.md).
 
 ## Appendix 1 - File Hashes
 
 The SHA1 hashes of the source code files in scope of the audit are listed in the table below.
 
-
+| Contract file name  |                SHA1 Hash                 |
+| ------------------- | ---------------------------------------- |
+| uniswap_exchange.vy | 9b058dc847040594bcac502effab5bda0de5fa3c |
+| uniswap_factory.vy  | 97d49145ec4fc6aa31099cb51c0c2f69b6e487b7 |
+|                     |                                          |
 
 ## Appendix 2 - Severity 
 
