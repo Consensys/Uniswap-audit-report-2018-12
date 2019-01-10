@@ -61,6 +61,14 @@ The following documentation was available to the audit team:
 - [Docs](https://docs.uniswap.io/)
 - [Runtime Verifications Formal Specification of Market Maker Model](https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf)
 
+#### Summary of Formal Verification work done by Runtime Verification
+
+We were provided with a [report](https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf) by Runtime Verification Inc. describing some properties of Uniswap exchange. This report contains a formal specification of the Uniswap exchange model (constant product market maker model) that includes a description of price discovery including fees, tokens trading and adding/removing liquidity.
+
+Since the implementation is restricted by the EVM to integer arithmetic, the main purpose of this report is to analyze the difference between the theoretical model and the implemented model. This report only analyzes rounding errors that are made on the transition to integer arithmetics. It proves that no attack can be made to benefit from rounding errors, and that every rounding error is made in favour of the liquidity pool.
+
+This report does not cover all possible attacks on the actual smart contract system, such as frontrunning, reentrancy, etc.
+
 #### Scope
 
 | Contract file name  |                SHA1 Hash                 |
