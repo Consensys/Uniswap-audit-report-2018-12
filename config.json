@@ -1,5 +1,7 @@
 {
   "project_name": "Uniswap",
+  "client_name": "Uniswap",
   "github_repo": "ConsenSys/Uniswap-audit-internal-2018-12",
+  "internal_audit_repo": "https://github.com/ConsenSys/Uniswap-audit-internal-2018-12",
   "github_todo_audit_repo": "https://github.com/ConsenSys/todo-audits"
 }
