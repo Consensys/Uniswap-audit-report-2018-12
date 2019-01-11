@@ -116,16 +116,39 @@ The following table contains all the issues discovered during the audit. The iss
 
 ## 4 Threat Model
 
-The creation of a threat model is beneficial when building smart contract systems as it helps to understand the potential security threats, assess risk, and identify appropriate mitigation strategies. This is especially useful during the design and development of a contract system as it allows to create a more resilient design which is more difficult to change post-development. 
-
-A threat model was created during the audit process in order to analyze the attack surface of the contract system and to focus review and testing efforts on key areas that a malicious actor would likely also attack. It consists of two parts a high level design diagram that help to understand the attack surface and a list of threats that exist for the contract system. 
-
 ### 4.1 Overview 
 
+Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. We examine the various malicious actors, and the potential impact they may have on the system.
 
 ### 4.2 Detail
 
+**Malicious Web Attacker**
 
+Since the front-facing portion of Uniswap is hosted on a website, anyone who gains access to the DNS, hosting, or Cloudflare account could deploy a malicious uniswap frontend that could, among other things, redirect transactions meant for the exchanges to a wallet controlled by the attacker. An attacker may also go after one of the many dependencies pulled in by NPM to inject themselves into the deployment process.
+
+**Malicious Ethereum Attacker**
+
+The contracts are live on mainnet, giving anyone the ability to poke at them. The functionality in these contracts is fairly minimal, and the implementation in vyper has likely mitigated many of the classic implementation errors, so it seems like an attacker is going to have the most luck attacking extra features in the attached ERC20 token.
+
+**Malicious Trader**
+
+Two key areas of attack for malicious traders would be trying to stack rounding issues, and skimming trades via front running. Rounding issues are unlikely to be much of a problem because rounding always favors the liquidity providers, but is likely to a key attack vector for a while. Specifics and potential mitigations are discussed in **3.1**.
+
+**Malicious Miner**
+
+The key advantage that a Malicious Miner has is the ability to front run transactions much more reliably. Hopefully the social incentives for being a fair pool operator will preclude any of the major pools from participating in this sort of activity, but the threat exists.
+
+**Malicious Liquidity Provider**
+
+A large liquidity provider primarily has the advantage when performing rounding attacks. Since rounding errors favor the liquidity provider, someone may temporarily take something like a 95% stake in the liquidity pool, and then attempt to stack rounding issues to drain funds from the liquidity pool. We have so far been unable to figure out a sequence of events that would be favorable to the attacker.
+
+**Malicious Exchange Creator**
+
+Importantly, the person who creates an exchange gets to point at any ERC20 token they like, which could lead to a few types of attacks. An attacker may attempt to impersonate a popular token by naming it similarly, though as long as the default exchanges are statically added to the frontend manually exposure should be limited.
+
+More interestingly, the exchange creator could register a well known legitimate token, but initialize the liquidity pool in such a way that the token can never be used on the platform.
+
+There is also nothing that checks for the legitimacy of any ERC20 that gets inserted through the Factory, though the Exchange itself is created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack uniswap, or particularly vulnerable contracts might be added more prone to attack.
 
 ## 5 Tool based analysis 
 
