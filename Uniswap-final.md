@@ -9,17 +9,18 @@
   * [1.2 Audit Goals](#12-audit-goals)
   * [1.3 System Overview](#13-system-overview)
   * [1.4 Key Observations/Recommendations](#14-key-observationsrecommendations)
-* [2 Issue Overview](#2-issue-overview)
-* [3 Issue Detail](#3-issue-detail)
-  * [3.1 A malicious Exchange Creator may intentionally initialize and cripple popular tokens.](#31-a-malicious-exchange-creator-may-intentionally-initialize-and-cripple-popular-tokens-33)
-  * [3.2 Frontrunners can skim ~2.5% from every transaction.](#32-frontrunners-can-skim-25-from-every-transaction-30)
-  * [3.3 The factory contract should use a constructor](#33-the-factory-contract-should-use-a-constructor-23)
-  * [3.4 Consider validating exchange_addr in tokenToTokenInput()](#34-consider-validating-exchange_addr-in-tokentotokeninput-34)
-  * [3.5 Consider using transferFrom() in removeLiquidity() function](#35-consider-using-transferfrom-in-removeliquidity-function-31)
-  * [3.6 Redundant checks in factory contract](#36-redundant-checks-in-factory-contract-24)
-* [4 Threat Model](#4-threat-model)
-  * [4.1 Overview](#41-overview)
-  * [4.2 Detail](#42-detail)
+* [2 Threat Model](#2-threat-model)
+  * [2.1 Overview](#21-overview)
+  * [2.2 Detail](#22-detail)
+* [3 Issue Overview](#3-issue-overview)
+* [4 Issue Detail](#4-issue-detail)
+  * [3.1 Liquidity pool can be stolen in some tokens (e.g. ERC-777) ([29](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/29))](#31-liquidity-pool-can-be-stolen-in-some-tokens-eg-erc-777-29httpsgithubcomconsensysuniswap-audit-internal-2018-12issues29)
+  * [3.2 Frontrunners can skim ~2.5% from every transaction. ([30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30))](#32-frontrunners-can-skim-25-from-every-transaction-30httpsgithubcomconsensysuniswap-audit-internal-2018-12issues30)
+  * [3.3 Gaps in test coverage ([32](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/32))](#33-gaps-in-test-coverage-32httpsgithubcomconsensysuniswap-audit-internal-2018-12issues32)
+  * [3.4 Consider using transferFrom() in removeLiquidity() function ([31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31))](#34-consider-using-transferfrom-in-removeliquidity-function-31httpsgithubcomconsensysuniswap-audit-internal-2018-12issues31)
+  * [3.5 Different 'deadline' behaviour ([25](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/25))](#35-different-deadline-behaviour-25httpsgithubcomconsensysuniswap-audit-internal-2018-12issues25)
+  * [3.6 Redundant checks in factory contract ([24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24))](#36-redundant-checks-in-factory-contract-24httpsgithubcomconsensysuniswap-audit-internal-2018-12issues24)
+  * [3.7 The factory contract should use a constructor ([23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23))](#37-the-factory-contract-should-use-a-constructor-23httpsgithubcomconsensysuniswap-audit-internal-2018-12issues23)
 * [5 Tool based analysis](#5-tool-based-analysis)
   * [5.1 Mythril](#51-mythril)
   * [5.2 Odyssey](#52-odyssey)
@@ -61,7 +62,7 @@ ________________
 
 | | <img height="30px"  src="static-content/minor.png"/> | <img height="30px" src="static-content/medium.png"/>  | <img height="30px" src="static-content/major.png"/> | <img height="30px" src="static-content/critical.png"/> | 
 |:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
-| <img height="30px"  src="static-content/open.png"/> | **3**  |  **3**  | **0**  | **0** |
+| <img height="30px"  src="static-content/open.png"/> | **5**  |  **1**  | **1**  | **0** |
 | <img height="30px"  src="static-content/closed.png"/> | **0**  |  **0**  | **0**  | **0** |
 
 
@@ -137,173 +138,13 @@ This report does not cover all possible attacks on the actual smart contract sys
 * 
 -->
 
+## 2 Threat Model
 
-
-## 2 Issue Overview  
-
-The following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed description on the  levels of severity can be found in Appendix 2. The table also contains the Github status of any discovered issue.
-
-| Chapter | Issue Title  | Issue Status | Severity |
-| ------------- | ------------- | ------------- | ------------- |
- | 3.1 | [A malicious Exchange Creator may intentionally initialize and cripple popular tokens.](#31-a-malicious-exchange-creator-may-intentionally-initialize-and-cripple-popular-tokens-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.2 | [Frontrunners can skim ~2.5% from every transaction.](#32-frontrunners-can-skim-~2-5%-from-every-transaction-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.3 | [The factory contract should use a constructor](#33-the-factory-contract-should-use-a-constructor) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.4 | [Consider validating exchange_addr in tokenToTokenInput()](#34-consider-validating-exchange_addr-in-tokentotokeninput()) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.5 | [Consider using transferFrom() in removeLiquidity() function.](#35-consider-using-transferfrom()-in-removeliquidity()-function-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.6 | [Redundant checks in factory contract](#36-redundant-checks-in-factory-contract) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
-
-
-
-
-## 3 Issue Detail  
-
-### 3.1 A malicious Exchange Creator may intentionally initialize and cripple popular tokens. ([#33](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/33)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/33](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/33)| The issue is currently under review |
-
-
-Since any token can only be registered once in the Factory, someone with a grudge against a certain token may be able to create a new exchange for that token, and initialize the liquidity pool with values as to break any future transactions.
-
-This was tested on Rinkeby with the token: 0xc3d693d8a52ef1eaf763298b0c0d1a6d5183422b
-
-It was initialized with the liquidity of 1 ETH and 0.000000000000000001 MORPH tokens. At which point, I don't seem able to add or remove any liquidity, or perform any ETH/MORPH swaps.
-
-### 3.2 Frontrunners can skim ~2.5% from every transaction. ([#30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)| The issue is currently under review |
-
-
-The default client contains a constant called `ALLOWED_SLIPPAGE` which states how much the price is allowed to change. This constant is set to 0.025 in `uniswap-frontend/src/pages/Swap/index.js:367`. This means that the price can go up ~2.5% from what the buyer expects, and the order will still get executed.
-
-Any user on the Ethereum network has the ability to watch for new transactions being sent to the network. When the attacker sees a large victim transaction that they want to front run come in, they can create a similar transaction that would move the market up by no more than 2.5%. They then increase their gas fees to ensure that their order gets executed first. The attacker transaction executes, raising the price of the asset, and then the victim transaction executes at the higher price. The attacker is then free to exit the position immediately, pocketing the difference, having never exposed themselves to any risk.
-
-Sophisicated front-runners will likely call these transactions from their own contract addresses to make sure they end up with the prices they expect, and don't collide with other front-runners.
-
-This is a hard problem in general, and front-running of some form is always to be expected. By reducing the `ALLOWED_SLIPPAGE` (maybe even to 0), you can reduce the amount that front-runners can get for free from every transaction. The slippage value should probabally also be exposed to the user so they can opt in to a 0% slippage value if they choose.
-
-Even with zero slippage, the attacker can still make a large buy order, watch the victims order fail, wait until they make a new order, and then exit their position. Doing this does carry the additional risk that the victim may be unhappy with the new price, which eliminates the attackers opportunity for zero risk skimming.
-
-Bancor uses a front-running mitigation where there was a maximum gas value, so a user using the maximum gas value cannot be front-run by an attacker increasing the gas for their transaction. This approach might be worth looking into.
-
-### 3.3 The factory contract should use a constructor ([#23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)| The issue is currently under review |
-
-
-**Description**
-
-The factory uses a public function for initialization instead of a constructor which might make it a target for griefing attacks.
-
-Since there is no way to actually deploy the contract and call the `initializeFactory()` method within the same transaction without an additional contract designed for the effect (which seems to be inexistent in the current codebase) an attacker could grief deployments of the Uniswap factory by always front-running the initializing transaction after deployment.
-
-Possibly even more worrisome would be a front-running transaction that would underhandedly change the exchange template code to something very similarly benign but that was, for example, an underhandedly backdoored version of the original.
-
-**Remediation**
-
-The easiest solution would be to turn the initialization method into the constructor of said contract.
-Another possible remediation would be to introduce a "factory deployer" contract that executes both message calls in a single transaction.
-
-
-### 3.4 Consider validating exchange_addr in tokenToTokenInput() ([#34](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/34)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/34](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/34)| The issue is currently under review |
-
-
-The function `tokenToTokenInput()` has the `exchange_addr` argument, which is eventually cast to an Exchange, and the function `ethToTokenTransferInput()` is called on it. This could allow an attacker to execute arbitrary code in the context of the transaction by passing in the address for a malicious contract where `ethToTokenTransferInput()` does something unexpected, like reentering the exchange contract.
-
-The function is private, and often the public functions up the stack get the value directly from `self.factory.getExchange(token_addr)`, which is perfectly fine, but there do exist some public functions, such as `tokenToExchangeSwapInput()` that pass in the exchange address directly from attacker controlled input. In fact it seems like the only use for the tokenToExchange family of functions is to bypass the requirement that the exchange was created by the parent factory.
-
-Maybe this is a feature designed to allow interaction between various sets of uniswap contracts, but if not, something like
-
-```
-assert self.factory.getToken(exchange_addr)
-```
-
-in `tokenToTokenInput()` should reduce the attack surface somewhat.
-
-### 3.5 Consider using transferFrom() in removeLiquidity() function. ([#31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)| The issue is currently under review |
-
-
-To prevent issues like the BNB issue[1] from coming up in the future, consider using the same transfer function to add and remove liquidity. Hopefully this will ensure that if any non-compliant tokens get added in the future, it will be much more unlikely to get into a state where liquidity can be added, but not removed.
-
-[1] https://twitter.com/UniswapExchange/status/1072286773554876416
-
-
-### 3.6 Redundant checks in factory contract ([#24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)) 
-
-| Severity  | Status |  Link |  Remediation Comment |
-| ------------- | ------------- |  ------------- | ------------- |
-|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)| The issue is currently under review |
-
-
-**Description**
-
-In `uniswap_factory.vy` there are some redundant assertions:
-
-
-
-[contracts/uniswap_factory.vy:L15](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15
-)
-
-```Solidity
-    assert template != ZERO_ADDRESS
-```
-
-
-
-and 
-
-
-
-[contracts/uniswap_factory.vy:L21](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21
-)
-
-```Solidity
-    assert self.exchangeTemplate != ZERO_ADDRESS
-```
-
-
-
-Due to the fact that the Vyper compiler actually asserts that the code size at the specified exchange address (through the use of `EXTCODESIZE`) is bigger than `0`, here:
-
-
-
-[contracts/uniswap_factory.vy:L24](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24
-)
-
-```Solidity
-    Exchange(exchange).setup(token)
-```
-
-
-
-This meaning that the zeroth address as the exchange, having no code at all, would make the call to `setup()` fail.
-
-**Remediation**
-
-Remove the two assertions.
-
-
-
-## 4 Threat Model
-
-### 4.1 Overview 
+### 2.1 Overview 
 
 Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. We examine the various malicious actors, and the potential impact they may have on the system.
 
-### 4.2 Detail
+### 2.2 Detail
 
 **Malicious Web Attacker**
 
@@ -332,6 +173,211 @@ Importantly, the person who creates an exchange gets to point at any ERC20 token
 More interestingly, the exchange creator could register a well known legitimate token, but initialize the liquidity pool in such a way that the token can never be used on the platform.
 
 There is also nothing that checks for the legitimacy of any ERC20 that gets inserted through the Factory, though the Exchange itself is created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack uniswap, or particularly vulnerable contracts might be added more prone to attack.
+
+
+## 3 Issue Overview  
+
+The following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed description on the  levels of severity can be found in Appendix 2. The table also contains the Github status of any discovered issue.
+
+| Chapter | Issue Title  | Issue Status | Severity |
+| ------------- | ------------- | ------------- | ------------- |
+ | 3.1 | [Liquidity pool can be stolen in some tokens (e.g. ERC-777)](#31-liquidity-pool-can-be-stolen-in-some-tokens-(e-g--erc-777)) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/major.png"/> | 
+ | 3.2 | [Frontrunners can skim ~2.5% from every transaction.](#32-frontrunners-can-skim-~2-5%-from-every-transaction-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
+ | 3.3 | [Gaps in test coverage](#33-gaps-in-test-coverage) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.4 | [Consider using transferFrom() in removeLiquidity() function](#34-consider-using-transferfrom()-in-removeliquidity()-function) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.5 | [Different 'deadline' behaviour](#35-different-deadline-behaviour) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.6 | [Redundant checks in factory contract](#36-redundant-checks-in-factory-contract) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.7 | [The factory contract should use a constructor](#37-the-factory-contract-should-use-a-constructor) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+
+
+
+
+## 4 Issue Detail  
+
+
+### 3.1 Liquidity pool can be stolen in some tokens (e.g. ERC-777) ([#29](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/29)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/major.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/29](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/29)| The issue is currently under review |
+
+
+**Description**
+
+If token allows making reentrancy on `transferFrom(address from, address to, uint tokens)` function by someone except the recipient, then all the liquidity funds might be stolen. For example, if token calls callback function of `from` address. It's irrelevant if reentrancy is done before or after the balances update.
+
+**Attack**
+
+Let's imagine we have a token that calls a callback function of `from` address on `transferFrom(address from, address to, uint tokens)` and allows `from` address to make a reentrancy.  We will consider the case when reentrancy is made after the token balances are updated. If token balances are updated after the reentrancy (e.g. ERC-777), the algorithm is even easier and requires fewer funds to steal liquidity pool.
+
+In `tokenToTokenInput ` we have the following 2 lines of code 
+```
+assert self.token.transferFrom(buyer, self, tokens_sold)
+tokens_bought: uint256 = Exchange(exchange_addr).ethToTokenTransferInput(min_tokens_bought, deadline, recipient, value=wei_bought)
+```
+Attacker(`buyer`) can make reentrancy on the first line here. 
+
+1. Assume we have an exchange with a token that worth equally to ETH with liquidity pool equals (100 tokens, 100 ETH)
+2. An attacker creates a fake Exchange (it will be the second exchange in `tokenToToken` transfers) that will receive ETH from the first exchange and behave like a normal exchange.
+3. The attacker can buy 50 ETH for 100 tokens by using `tokenToTokenInput` function.
+4. New liquidity pool should be (200 tokens, 50 ETH) but since the attacker makes reentrancy on `assert self.token.transferFrom(buyer, self, tokens_sold)` it will still be (200 tokens, 100 ETH).
+5. While making reentrancy the attacker can buy 49.999 ETH for about 200 tokens using `tokenToEthSwapInput`.
+6. After that, the liquidity pool should look like (400 tokens, 0.001 ETH)
+7. Now the attacker can buy all the tokens for a very small amount of ETH.
+
+This is not a very accurate algorithm that does not include fees and gas cost, but logic stays the same.
+
+**Remediation**
+
+Add mutex to all functions that make trades in order to prevent reentrancy.
+
+### 3.2 Frontrunners can skim ~2.5% from every transaction. ([#30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/medium.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30)| The issue is currently under review |
+
+
+The default client contains a constant called `ALLOWED_SLIPPAGE` which states how much the price is allowed to change. This constant is set to 0.025 in `uniswap-frontend/src/pages/Swap/index.js:367`. This means that the price can go up ~2.5% from what the buyer expects, and the order will still get executed.
+
+Any user on the Ethereum network has the ability to watch for new transactions being sent to the network. When the attacker sees a large victim transaction that they want to front run come in, they can create a similar transaction that would move the market up by no more than 2.5%. They then increase their gas fees to ensure that their order gets executed first. The attacker transaction executes, raising the price of the asset, and then the victim transaction executes at the higher price. The attacker is then free to exit the position immediately, pocketing the difference, having never exposed themselves to any risk.
+
+Sophisicated front-runners will likely call these transactions from their own contract addresses to make sure they end up with the prices they expect, and don't collide with other front-runners.
+
+This is a hard problem in general, and front-running of some form is always to be expected. By reducing the `ALLOWED_SLIPPAGE` (maybe even to 0), you can reduce the amount that front-runners can get for free from every transaction. The slippage value should probabally also be exposed to the user so they can opt in to a 0% slippage value if they choose.
+
+Even with zero slippage, the attacker can still make a large buy order, watch the victims order fail, wait until they make a new order, and then exit their position. Doing this does carry the additional risk that the victim may be unhappy with the new price, which eliminates the attackers opportunity for zero risk skimming.
+
+Bancor uses a front-running mitigation where there was a maximum gas value, so a user using the maximum gas value cannot be front-run by an attacker increasing the gas for their transaction. This approach might be worth looking into.
+
+### 3.3 Gaps in test coverage ([#32](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/32)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/32](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/32)| The issue is currently under review |
+
+
+**Description**
+
+The test suite could be improved in certain areas. Different types of testing parameters and testing methodologies could be used to further extend its coverage.
+
+**Remediation**
+
+Specific areas that were identified as lacking proper coverage:
+
+* Additional ERC20 contracts with edge case parameters set (e.g.: `decimals = 0 | 18 | MAX_UINT8`, `totalSupply = 0 | MAX_UINT256`, ...) as opposed to only testing with the `HAY` token
+* Stress tests with some blackbox fuzzing with random amounts and parameters for ETH <-> ERC20 trades and ERC20 <-> ERC20 trades instead of fixed amounts.
+* Do unit testing in exchange functions with proper state reset between each test as opposed to doing only end-to-end tests with persisting state.
+* In the end-to-end tests more scenarios could be added to test for adverse conditions like big slippage.
+
+### 3.4 Consider using transferFrom() in removeLiquidity() function ([#31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31)| The issue is currently under review |
+
+
+#### Description
+
+To prevent issues like the BNB issue[1] from coming up in the future, consider using the same transfer function to add and remove liquidity. Hopefully this will ensure that if any non-compliant tokens get added in the future, it will be much more unlikely to get into a state where liquidity can be added, but not removed.
+
+[1] https://twitter.com/UniswapExchange/status/1072286773554876416
+
+
+### 3.5 Different 'deadline' behaviour ([#25](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/25)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/25](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/25)| The issue is currently under review |
+
+
+**Description**
+
+Many functions in `Exchange` contract have `deadline` as a parameter. This parameter has the same description in every function. But some functions use `>` operator when checking for a deadline
+``` 
+assert deadline > block.timestamp
+```
+while other functions use `>=` operator.
+
+**Remediation**
+
+Change all `>` operators to `>=` when working with deadline parameter.
+It does not really affect anything but keeps code more beautiful and consistent.
+
+
+### 3.6 Redundant checks in factory contract ([#24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24)| The issue is currently under review |
+
+
+**Description**
+
+In `uniswap_factory.vy` there are some redundant assertions:
+
+
+
+[contracts/uniswap_factory.vy:L15](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15)
+
+```Solidity
+    assert template != ZERO_ADDRESS
+```
+
+
+
+and 
+
+
+
+[contracts/uniswap_factory.vy:L21](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21)
+
+```Solidity
+    assert self.exchangeTemplate != ZERO_ADDRESS
+```
+
+
+
+Due to the fact that the Vyper compiler actually asserts that the code size at the specified exchange address (through the use of `EXTCODESIZE`) is bigger than `0`, here:
+
+
+
+[contracts/uniswap_factory.vy:L24](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24)
+
+```Solidity
+    Exchange(exchange).setup(token)
+```
+
+
+
+This meaning that the zeroth address as the exchange, having no code at all, would make the call to `setup()` fail.
+
+**Remediation**
+
+Remove the two assertions.
+
+### 3.7 The factory contract should use a constructor ([#23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)) 
+
+| Severity  | Status |  Link |  Remediation Comment |
+| ------------- | ------------- |  ------------- | ------------- |
+|  <img height="30px" src="static-content/minor.png"/>  |  <img height="30px" src="static-content/open.png"/>   | [ issues/23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23)| The issue is currently under review |
+
+
+**Description**
+
+The factory uses a public function for initialization instead of a constructor which might make it a target for griefing attacks.
+
+Since there is no way to actually deploy the contract and call the `initializeFactory()` method within the same transaction without an additional contract designed for the effect (which seems to be inexistent in the current codebase) an attacker could grief deployments of the Uniswap factory by always front-running the initializing transaction after deployment.
+
+Possibly even more worrisome would be a front-running transaction that would underhandedly change the exchange template code to something very similarly benign but that was, for example, an underhandedly backdoored version of the original.
+
+**Remediation**
+
+The easiest solution would be to turn the initialization method into the constructor of said contract.
+Another possible remediation would be to introduce a "factory deployer" contract that executes both message calls in a single transaction.
+
+
+
 
 ## 5 Tool based analysis 
 

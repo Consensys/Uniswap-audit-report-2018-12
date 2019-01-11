@@ -5,7 +5,7 @@ The following table contains all the issues discovered during the audit. The iss
 <%= issue_list %>
 
 
-## 2 Issue Detail  Coonacon2018
+## 2 Issue Detail
 
 
 <%= issues_markdown %>

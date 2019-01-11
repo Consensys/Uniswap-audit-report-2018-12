@@ -105,27 +105,13 @@ This report does not cover all possible attacks on the actual smart contract sys
 * 
 -->
 
+## 2 Threat Model
 
-
-## 2 Issue Overview  
-
-The following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed description on the  levels of severity can be found in Appendix 2. The table also contains the Github status of any discovered issue.
-
-<%= issue_list %>
-
-
-## 3 Issue Detail  
-
-
-<%= issues_markdown %>
-
-## 4 Threat Model
-
-### 4.1 Overview 
+### 2.1 Overview 
 
 Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. We examine the various malicious actors, and the potential impact they may have on the system.
 
-### 4.2 Detail
+### 2.2 Detail
 
 **Malicious Web Attacker**
 
@@ -155,30 +141,44 @@ More interestingly, the exchange creator could register a well known legitimate 
 
 There is also nothing that checks for the legitimacy of any ERC20 that gets inserted through the Factory, though the Exchange itself is created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack uniswap, or particularly vulnerable contracts might be added more prone to attack.
 
+
+## 3 Issue Overview  
+
+The following table contains all the issues discovered during the audit. The issues are ordered based on their severity. More detailed description on the  levels of severity can be found in Appendix 2. The table also contains the Github status of any discovered issue.
+
+<%= issue_list %>
+
+
+## 4 Issue Detail  
+
+
+<%= issues_markdown %>
+
 ## 5 Tool based analysis 
 
 The issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues. 
 
 
-### 5.1 Mythril 
+### 5.1 Mythril Classic
 
 <img height="120px" align="right" src="static-content/mythril.png"/>
 
-Mythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis to detect various types of issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More details on Mythril's current vulnerability coverage can be found [here](https://github.com/ConsenSys/mythril/wiki).
+The [Mythril Classic](https://github.com/ConsenSys/mythril-classic) uses concolic analysis to detect various types of issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More details on MythX's current vulnerability coverage can be found [here](https://github.com/ConsenSys/mythril-classic/wiki).
 
-The raw output of the Mythril vulnerability scan can for each contract:
+The raw output of the Mythril Classic vulnerability scan for each contract:
 
 * [uniswap_exchange.vy](./tool-output/mythril/mythril_output_exchange.md)
 * [uniswap_factory.vy](./tool-output/mythril/mythril_output_factory.md)
 
-### 5.2 Odyssey 
 
-<img height="120px" align="right" src="static-content/odyssey.png"/>
+### 5.2 Harvey Fuzzer
 
-Odyssey is an audit tool that acts as the glue between developers, auditors and tools. It leverages Github as the platform for building software and aligns to the approach that quality needs to be addressed as early as possible in the development life cycle and small iterative security activities spread out through development help to produce a more secure smart contract system.
-In its current version Odyssey helps to better communicate audit issues to development teams and to successfully close them.
+Harvey is a grey box fuzzer designed specifically for the EVM. 
 
+The raw output of Harvey's analysis for each contract:
 
+* [uniswap_exchange.vy](./tool-output/harvey/harvey_output_exchange.md)
+* [uniswap_factory.vy](./tool-output/harvey/harvey_output_factory.md)
 
 ## 6 Test Coverage Measurement
 
