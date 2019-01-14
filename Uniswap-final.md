@@ -1,3 +1,9 @@
+# TODOs: 
+
+* Ask GNSPS to confirm the delegate proxy thing
+* Ask Sergio to write a test of his attack
+* Ask Dean to write a test of his attack
+
 # Uniswap Audit
 
 
@@ -8,7 +14,8 @@
   * [1.1 Audit Dashboard](#11-audit-dashboard)
   * [1.2 Audit Goals](#12-audit-goals)
   * [1.3 System Overview](#13-system-overview)
-  * [1.4 Key Observations/Recommendations](#14-key-observationsrecommendations)
+  * [1.4 Key Observations](#14-key-observations)
+  * [1.5 Recommendations](#15-recommendations)
 * [2 Threat Model](#2-threat-model)
   * [2.1 Overview](#21-overview)
   * [2.2 Detail](#22-detail)
@@ -22,8 +29,8 @@
   * [3.6 Redundant checks in factory contract ([24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24))](#36-redundant-checks-in-factory-contract-24httpsgithubcomconsensysuniswap-audit-internal-2018-12issues24)
   * [3.7 The factory contract should use a constructor ([23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23))](#37-the-factory-contract-should-use-a-constructor-23httpsgithubcomconsensysuniswap-audit-internal-2018-12issues23)
 * [5 Tool based analysis](#5-tool-based-analysis)
-  * [5.1 Mythril](#51-mythril)
-  * [5.2 Odyssey](#52-odyssey)
+  * [5.1 Mythril Classic](#51-mythril-classic)
+  * [5.2 Harvey Fuzzer](#52-harvey-fuzzer)
 * [6 Test Coverage Measurement](#6-test-coverage-measurement)
 * [Appendix 1 - File Hashes](#appendix-1---file-hashes)
 * [Appendix 2 - Severity](#appendix-2---severity)
@@ -37,10 +44,12 @@
 
 ## 1 Summary
 
-ConsenSys Diligence conducted a security audit on ...
+Uniswap is a decentralized exchange hosted on the main Ethereum blockchain. It enables users to trade any ERC20 token for ETH, or for another ERC20 token. It has no native token, and no fees are charged by Uniswap's creators. Thus it can be considered a public good. 
 
-<!-- Provide a headline description of what you have audited and what the goal or purpose of the audited project is. 
-Also add any other important context for the audit -->
+From December 10 to January 11 (excluding holidays) four members of the ConsenSys Diligence team conducted a security audit on the Uniswap system.
+
+Unsiwap is written in [Vyper](http://vyper.readthedocs.io), whereas the vast majority of contracts have been written in Solidity. To our knowledge, this is the first security audit conducted on a Vyper codebase. 
+
 
 ### 1.1 Audit Dashboard
 
@@ -49,6 +58,7 @@ ________________
 <img height="120px" Hspace="30" Vspace="10" align="right" src="static-content/dashboard.png"/> 
 
 #### Audit Details
+
 * **Project Name:** Uniswap
 * **Client Name:** Uniswap
 * **Client Contact:** Hayden Adams
@@ -73,22 +83,18 @@ ________________
 The focus of the audit was to verify that the smart contract system is secure, resilient and working according to its specifications. The audit activities can be grouped in the following three categories:  
 
 **Security:** Identifying security related issues within each contract and within the system of contracts.
-
 **Sound Architecture:** Evaluation of the architecture of this system through the lens of established smart contract best practices and general software best practices.
-
 **Code Correctness and Quality:** A full review of the contract source code. The primary areas of focus include:
-
-* Correctness 
+* Correctness
 * Readability 
 * Sections of code with high complexity
-* Improving scalability
 * Quantity and quality of test coverage
 
 ### 1.3 System Overview 
 
 #### Documentation
 
-The following documentation was available to the audit team:
+The following documentation was available to the audit team, and provides the necessary context for this report:
 
 - [White Paper](https://hackmd.io/C-DvwDSfSxuh-Gd4WKE_ig#) 
 - [Docs](https://docs.uniswap.io/)
@@ -96,11 +102,11 @@ The following documentation was available to the audit team:
 
 #### Summary of Formal Verification work done by Runtime Verification
 
-We were provided with a [report](https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf) by Runtime Verification Inc. describing some properties of Uniswap exchange. This report contains a formal specification of the Uniswap exchange model (constant product market maker model) that includes a description of price discovery including fees, tokens trading and adding/removing liquidity.
+We were provided with a [report](https://github.com/runtimeverification/verified-smart-contracts/blob/uniswap/uniswap/x-y-k.pdf) by Runtime Verification (RV) Inc. describing some properties of Uniswap exchange. This report contains a formal specification of the Uniswap exchange model (constant product market maker model) that includes a description of price discovery including fees, tokens trading and adding/removing liquidity.
 
-Since the implementation is restricted by the EVM to integer arithmetic, the main purpose of this report is to analyze the difference between the theoretical model and the implemented model. This report only analyzes rounding errors that are made on the transition to integer arithmetics. It proves that no attack can be made to benefit from rounding errors, and that every rounding error is made in favour of the liquidity pool.
+Since the implementation is restricted to integer arithmetic, the main purpose of the RV report is to analyze the difference between the theoretical model and the implemented model. This report only analyzes rounding errors that are made on the transition to integer arithmetics. It proves that no attack can be made to benefit from rounding errors, and that every rounding error is made in favour of the liquidity pool.
 
-This report does not cover all possible attacks on the actual smart contract system, such as frontrunning, reentrancy, etc.
+The RV report does not cover all possible attacks on the actual smart contract system, such as frontrunning, reentrancy, etc.
 
 #### Scope
 
@@ -108,72 +114,65 @@ This report does not cover all possible attacks on the actual smart contract sys
 | ------------------- | ---------------------------------------- |
 | uniswap_exchange.vy | 9b058dc847040594bcac502effab5bda0de5fa3c |
 | uniswap_factory.vy  | 97d49145ec4fc6aa31099cb51c0c2f69b6e487b7 |
-|                     |                                          |
 
-#### Design
 
-* Each token get's it's own exchange contract
-* contracts are generated by a factory conract, which also serves as a registry, mapping token address to exchange address
-* ETH is used as a settlement mechanism when trading between tokens
-* 
-    
+### 1.4 Key Observations
 
-### 1.4 Key Observations/Recommendations  
+#### On Auditing Vyper
 
-<!-- Positive Observations: Examples 
-*  The design of the system is well documented
-*  The code contains many helpful comments
-*  The library architecture is efficient, and innovative
--->
+Vyper has the disadvantage of being a newer language with a smaller community, thus having fewer security analysis tools available. Fortunately, Vyper's design philosophy priortizes both auditability and legibility. The LLL IR from the compiler made it easier to see which opcodes are used to achieve the written instructions.
 
-<!-- Recommendations: Examples
+Despite Vyper's emphasis on legibility, we observed some unituitive output from the compiler. In particular, the built in function `create_with_code_of(address)` does not use the code of the input address, but rather creates a contract which delegates it's logic to the input address.
 
-* **Test coverage is incomplete:** Any contract system that is used on the main net should have as a minimum requirement a 100% test coverage.
-* **Include negative test cases:** The majority of the tests are positive test cases, meaning that the tests confirm that the system works with an expected sequence of actions and inputs. The test suite should be expanded to include more negative scenarios to ensure that the safe checks within the contract system are working correctly.  
-* **High Complexity:** The multiple library/contract system is complex in nature. Additional complexity is added by having ... 
-* **Stages/Time periods:**  The stages and various timings should be defined more clearly in separated control functions. Any state changing function that is called should check first against those control functions and check if it is allowed to be executed. 
-* **Fix all issues:** It is recommended to fix all the issues listed in the below chapters, at the very least the ones with severity Critical, Major and Medium. All issues have also been created as issues on [Github](LINK).
-* **Function visibility:** Best practices such as explicitly specifying function visibility should be followed.
-* **Improve Documentation:** Inconsistencies exist between the white paper/documentation and implementation.  
-* 
--->
+#### On the quality and preparedness of Uniswap
+
+Uniswap's documentation is thorough and well written. The codebase contains natspec comments on each function. The code is written defensively, with frequent assert statements to revert calls with invalid input.
+
+We found the test coverage to be incomplete. Including untested behavior, and sections of code which were untested. The majority of the tests are positive test cases, meaning that the tests confirm that the system works with an expected sequence of actions and inputs. The test suite should be expanded to include more negative scenarios to ensure that the safe checks within the contract system are working correctly.
+
+### 1.5 Recommendations
+
+The issues in our report do not necesessitate replacing the system as it currently stands.
+
+An important consideration in our recommendation is that the Uniswap system has been live on the main Ethereum network for several months, and holds over $300,000 in its liquidity pools. This provides a natural incentive to attack the system, suggesting that no known vulnerabilities currently exist. 
+
+Our primary recommendation is to extend the test suite to cover 100% of the code, and to include testing to ensure for undesirable behavior.
 
 ## 2 Threat Model
 
 ### 2.1 Overview 
 
-Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. We examine the various malicious actors, and the potential impact they may have on the system.
+Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. Here we examine the various malicious actors, and the potential impact they may have on the system.
 
 ### 2.2 Detail
 
-**Malicious Web Attacker**
-
-Since the front-facing portion of Uniswap is hosted on a website, anyone who gains access to the DNS, hosting, or Cloudflare account could deploy a malicious uniswap frontend that could, among other things, redirect transactions meant for the exchanges to a wallet controlled by the attacker. An attacker may also go after one of the many dependencies pulled in by NPM to inject themselves into the deployment process.
-
-**Malicious Ethereum Attacker**
+#### Malicious Ethereum Attacker
 
 The contracts are live on mainnet, giving anyone the ability to poke at them. The functionality in these contracts is fairly minimal, and the implementation in vyper has likely mitigated many of the classic implementation errors, so it seems like an attacker is going to have the most luck attacking extra features in the attached ERC20 token.
 
-**Malicious Trader**
+#### Malicious Trader
 
-Two key areas of attack for malicious traders would be trying to stack rounding issues, and skimming trades via front running. Rounding issues are unlikely to be much of a problem because rounding always favors the liquidity providers, but is likely to a key attack vector for a while. Specifics and potential mitigations are discussed in **3.1**.
+Two key areas of attack for malicious traders would be trying to stack rounding issues, and skimming trades via front running. Rounding issues are unlikely to be much of a problem because rounding always favors the liquidity providers, but is likely to be a key attack vector for a while. Specifics and potential mitigations are discussed in **3.1**.
 
-**Malicious Miner**
+#### Malicious Miner
 
 The key advantage that a Malicious Miner has is the ability to front run transactions much more reliably. Hopefully the social incentives for being a fair pool operator will preclude any of the major pools from participating in this sort of activity, but the threat exists.
 
-**Malicious Liquidity Provider**
+#### Malicious Liquidity Provider
 
 A large liquidity provider primarily has the advantage when performing rounding attacks. Since rounding errors favor the liquidity provider, someone may temporarily take something like a 95% stake in the liquidity pool, and then attempt to stack rounding issues to drain funds from the liquidity pool. We have so far been unable to figure out a sequence of events that would be favorable to the attacker.
 
-**Malicious Exchange Creator**
+#### Malicious Exchange Creator
 
-Importantly, the person who creates an exchange gets to point at any ERC20 token they like, which could lead to a few types of attacks. An attacker may attempt to impersonate a popular token by naming it similarly, though as long as the default exchanges are statically added to the frontend manually exposure should be limited.
+Importantly, anyone can create an exchange, and can set it to any ERC20 token they like, which could lead to a few types of attacks. An attacker may attempt to impersonate a popular token by naming it similarly, though as long as the default exchanges are statically added to the frontend manually exposure should be limited.
 
 More interestingly, the exchange creator could register a well known legitimate token, but initialize the liquidity pool in such a way that the token can never be used on the platform.
 
-There is also nothing that checks for the legitimacy of any ERC20 that gets inserted through the Factory, though the Exchange itself is created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack uniswap, or particularly vulnerable contracts might be added more prone to attack.
+There is also nothing in Uniswap to ensure a token address provided to the the Factory, is compliant with ERC20. However, Exchange contracts are created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack Uniswap, or particularly vulnerable contracts might be added more prone to attack.
 
+#### Malicious Web Attacker
+
+Since the front-facing portion of Uniswap is hosted on a website, anyone who gains access to the DNS, hosting, or Cloudflare account could deploy a malicious Uniswap frontend that could, among other things, redirect transactions meant for the Exchanges to a wallet controlled by the attacker. An attacker may also go after one of the many dependencies pulled in by NPM to inject themselves into the deployment process.
 
 ## 3 Issue Overview  
 
@@ -381,28 +380,28 @@ Another possible remediation would be to introduce a "factory deployer" contract
 
 ## 5 Tool based analysis 
 
-The issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues. 
+The issues found using  tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues. Fewer tools support code written with Vyper than Solidity, the following were included in our analysis. 
 
-
-### 5.1 Mythril 
+### 5.1 Mythril Classic
 
 <img height="120px" align="right" src="static-content/mythril.png"/>
 
-Mythril is a security analysis tool for Ethereum smart contracts. It uses concolic analysis to detect various types of issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More details on Mythril's current vulnerability coverage can be found [here](https://github.com/ConsenSys/mythril/wiki).
+The [Mythril Classic](https://github.com/ConsenSys/mythril-classic) uses concolic analysis to detect various types of issues. The tool was used for automated vulnerability discovery for all audited contracts and libraries. More details on MythX's current vulnerability coverage can be found [here](https://github.com/ConsenSys/mythril-classic/wiki).
 
-The raw output of the Mythril vulnerability scan can for each contract:
+The raw output of the Mythril Classic vulnerability scan for each contract:
 
 * [uniswap_exchange.vy](./tool-output/mythril/mythril_output_exchange.md)
 * [uniswap_factory.vy](./tool-output/mythril/mythril_output_factory.md)
 
-### 5.2 Odyssey 
 
-<img height="120px" align="right" src="static-content/odyssey.png"/>
+### 5.2 Harvey Fuzzer
 
-Odyssey is an audit tool that acts as the glue between developers, auditors and tools. It leverages Github as the platform for building software and aligns to the approach that quality needs to be addressed as early as possible in the development life cycle and small iterative security activities spread out through development help to produce a more secure smart contract system.
-In its current version Odyssey helps to better communicate audit issues to development teams and to successfully close them.
+Harvey is a grey box fuzzer designed specifically for the EVM. 
 
+The raw output of Harvey's analysis for each contract:
 
+* [uniswap_exchange.vy](./tool-output/harvey/harvey_output_exchange.md)
+* [uniswap_factory.vy](./tool-output/harvey/harvey_output_factory.md)
 
 ## 6 Test Coverage Measurement
 

@@ -15,12 +15,12 @@
 
 ## 1 Summary
 
-Uniswap is a decentralized exchange hosted on the main Ethereum blockchain. It enables users to trade pairs any ERC20 token for ETH, or for another ERC20 token. It has no native token, and no fees are charged by Uniswap's creators. and thus can be considered a public good. 
+Uniswap is a decentralized exchange hosted on the main Ethereum blockchain. It enables users to trade any ERC20 token for ETH, or for another ERC20 token. It has no native token, and no fees are charged by Uniswap's creators. Thus it can be considered a public good. 
 
-From December __ to January __ ConsenSys Diligence conducted a security audit
-4 members of our team participated participated in the audit.
+From December 10 to January 11 (excluding holidays) four members of the ConsenSys Diligence team conducted a security audit on the Uniswap system.
 
-To our knowledge, this is the first important ethereum smart contract system written in Vyper, and the first security audit conducted on a Vyper codebase. Previously, the vast majority of contracts having been written in Solidity.  
+Unsiwap is written in [Vyper](http://vyper.readthedocs.io), whereas the vast majority of contracts have been written in Solidity. To our knowledge, this is the first security audit conducted on a Vyper codebase. 
+
 
 ### 1.1 Audit Dashboard
 
@@ -29,6 +29,7 @@ ________________
 <img height="120px" Hspace="30" Vspace="10" align="right" src="static-content/dashboard.png"/> 
 
 #### Audit Details
+
 * **Project Name:** Uniswap
 * **Client Name:** Uniswap
 * **Client Contact:** Hayden Adams
@@ -48,15 +49,11 @@ ________________
 The focus of the audit was to verify that the smart contract system is secure, resilient and working according to its specifications. The audit activities can be grouped in the following three categories:  
 
 **Security:** Identifying security related issues within each contract and within the system of contracts.
-
 **Sound Architecture:** Evaluation of the architecture of this system through the lens of established smart contract best practices and general software best practices.
-
 **Code Correctness and Quality:** A full review of the contract source code. The primary areas of focus include:
-
-* Correctness 
+* Correctness
 * Readability 
 * Sections of code with high complexity
-* Improving scalability
 * Quantity and quality of test coverage
 
 ### 1.3 System Overview 
@@ -83,7 +80,6 @@ The RV report does not cover all possible attacks on the actual smart contract s
 | ------------------- | ---------------------------------------- |
 | uniswap_exchange.vy | 9b058dc847040594bcac502effab5bda0de5fa3c |
 | uniswap_factory.vy  | 97d49145ec4fc6aa31099cb51c0c2f69b6e487b7 |
-|                     |                                          |
 
 
 ### 1.4 Key Observations
@@ -96,17 +92,15 @@ Despite Vyper's emphasis on legibility, we observed some unituitive output from 
 
 #### On the quality and preparedness of Uniswap
 
-Uniswap's documentation is thorough and well written. The codebase contains natspec comments on each function. The code is written defensively, with frequent assert statements to revert calls with invalid input
+Uniswap's documentation is thorough and well written. The codebase contains natspec comments on each function. The code is written defensively, with frequent assert statements to revert calls with invalid input.
 
 We found the test coverage to be incomplete. Including untested behavior, and sections of code which were untested. The majority of the tests are positive test cases, meaning that the tests confirm that the system works with an expected sequence of actions and inputs. The test suite should be expanded to include more negative scenarios to ensure that the safe checks within the contract system are working correctly.
-
-Our audit did not identify serious issues in the behaviour of  
 
 ### 1.5 Recommendations
 
 The issues in our report do not necesessitate replacing the system as it currently stands.
 
-An important consideration in our recommendation is that the Uniswap system has been live on the main Ethereum network for several months, and holds over $300,000 in its liquidity pools. This provides a natural incentive to attack the system, suggesting that no known vulnerabilities currently exist.
+An important consideration in our recommendation is that the Uniswap system has been live on the main Ethereum network for several months, and holds over $300,000 in its liquidity pools. This provides a natural incentive to attack the system, suggesting that no known vulnerabilities currently exist. 
 
 Our primary recommendation is to extend the test suite to cover 100% of the code, and to include testing to ensure for undesirable behavior.
 
@@ -114,7 +108,7 @@ Our primary recommendation is to extend the test suite to cover 100% of the code
 
 ### 2.1 Overview 
 
-Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. We examine the various malicious actors, and the potential impact they may have on the system.
+Uniswap is a decentralized exchange, which, from the start, gives it a large number of potential adversaries with strong incentives to take advantage of the system. Here we examine the various malicious actors, and the potential impact they may have on the system.
 
 ### 2.2 Detail
 
@@ -124,7 +118,7 @@ The contracts are live on mainnet, giving anyone the ability to poke at them. Th
 
 #### Malicious Trader
 
-Two key areas of attack for malicious traders would be trying to stack rounding issues, and skimming trades via front running. Rounding issues are unlikely to be much of a problem because rounding always favors the liquidity providers, but is likely to a key attack vector for a while. Specifics and potential mitigations are discussed in **3.1**.
+Two key areas of attack for malicious traders would be trying to stack rounding issues, and skimming trades via front running. Rounding issues are unlikely to be much of a problem because rounding always favors the liquidity providers, but is likely to be a key attack vector for a while. Specifics and potential mitigations are discussed in **3.1**.
 
 #### Malicious Miner
 
@@ -136,15 +130,15 @@ A large liquidity provider primarily has the advantage when performing rounding 
 
 #### Malicious Exchange Creator
 
-Importantly, the person who creates an exchange gets to point at any ERC20 token they like, which could lead to a few types of attacks. An attacker may attempt to impersonate a popular token by naming it similarly, though as long as the default exchanges are statically added to the frontend manually exposure should be limited.
+Importantly, anyone can create an exchange, and can set it to any ERC20 token they like, which could lead to a few types of attacks. An attacker may attempt to impersonate a popular token by naming it similarly, though as long as the default exchanges are statically added to the frontend manually exposure should be limited.
 
 More interestingly, the exchange creator could register a well known legitimate token, but initialize the liquidity pool in such a way that the token can never be used on the platform.
 
-There is also nothing that checks for the legitimacy of any ERC20 that gets inserted through the Factory, though the Exchange itself is created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack uniswap, or particularly vulnerable contracts might be added more prone to attack.
+There is also nothing in Uniswap to ensure a token address provided to the the Factory, is compliant with ERC20. However, Exchange contracts are created via a template, so the Exchange code can't be tampered with. The ERC20 tokens could be contracts designed to attack Uniswap, or particularly vulnerable contracts might be added more prone to attack.
 
 #### Malicious Web Attacker
 
-Since the front-facing portion of Uniswap is hosted on a website, anyone who gains access to the DNS, hosting, or Cloudflare account could deploy a malicious uniswap frontend that could, among other things, redirect transactions meant for the exchanges to a wallet controlled by the attacker. An attacker may also go after one of the many dependencies pulled in by NPM to inject themselves into the deployment process.
+Since the front-facing portion of Uniswap is hosted on a website, anyone who gains access to the DNS, hosting, or Cloudflare account could deploy a malicious Uniswap frontend that could, among other things, redirect transactions meant for the Exchanges to a wallet controlled by the attacker. An attacker may also go after one of the many dependencies pulled in by NPM to inject themselves into the deployment process.
 
 ## 3 Issue Overview  
 
@@ -160,8 +154,7 @@ The following table contains all the issues discovered during the audit. The iss
 
 ## 5 Tool based analysis 
 
-The issues from the tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues. 
-
+The issues found using  tool based analysis have been reviewed and the relevant issues have been listed in chapter 3 - Issues. Fewer tools support code written with Vyper than Solidity, the following were included in our analysis. 
 
 ### 5.1 Mythril Classic
 
