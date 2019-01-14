@@ -1,9 +1,3 @@
-# TODOs: 
-
-* Ask GNSPS to confirm the delegate proxy thing
-* Ask Sergio to write a test of his attack
-* Ask Dean to write a test of his attack
-
 # Uniswap Audit
 
 
@@ -49,6 +43,8 @@ Uniswap is a decentralized exchange hosted on the main Ethereum blockchain. It e
 From December 10 to January 11 (excluding holidays) four members of the ConsenSys Diligence team conducted a security audit on the Uniswap system.
 
 Unsiwap is written in [Vyper](http://vyper.readthedocs.io), whereas the vast majority of contracts have been written in Solidity. To our knowledge, this is the first security audit conducted on a Vyper codebase. 
+
+We 
 
 
 ### 1.1 Audit Dashboard
