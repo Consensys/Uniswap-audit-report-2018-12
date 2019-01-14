@@ -15,13 +15,13 @@
   * [2.2 Detail](#22-detail)
 * [3 Issue Overview](#3-issue-overview)
 * [4 Issue Detail](#4-issue-detail)
-  * [3.1 Liquidity pool can be stolen in some tokens (e.g. ERC-777) ([29](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/29))](#31-liquidity-pool-can-be-stolen-in-some-tokens-eg-erc-777-29httpsgithubcomconsensysuniswap-audit-internal-2018-12issues29)
-  * [3.2 Frontrunners can skim ~2.5% from every transaction. ([30](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/30))](#32-frontrunners-can-skim-25-from-every-transaction-30httpsgithubcomconsensysuniswap-audit-internal-2018-12issues30)
-  * [3.3 Gaps in test coverage ([32](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/32))](#33-gaps-in-test-coverage-32httpsgithubcomconsensysuniswap-audit-internal-2018-12issues32)
-  * [3.4 Consider using transferFrom() in removeLiquidity() function ([31](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/31))](#34-consider-using-transferfrom-in-removeliquidity-function-31httpsgithubcomconsensysuniswap-audit-internal-2018-12issues31)
-  * [3.5 Different 'deadline' behaviour ([25](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/25))](#35-different-deadline-behaviour-25httpsgithubcomconsensysuniswap-audit-internal-2018-12issues25)
-  * [3.6 Redundant checks in factory contract ([24](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/24))](#36-redundant-checks-in-factory-contract-24httpsgithubcomconsensysuniswap-audit-internal-2018-12issues24)
-  * [3.7 The factory contract should use a constructor ([23](https://github.com/ConsenSys/Uniswap-audit-internal-2018-12/issues/23))](#37-the-factory-contract-should-use-a-constructor-23httpsgithubcomconsensysuniswap-audit-internal-2018-12issues23)
+  * [3.1 Liquidity pool can be stolen in some tokens (e.g. ERC-777) (#29)](#31-liquidity-pool-can-be-stolen-in-some-tokens-eg-erc-777-29)
+  * [3.2 Frontrunners can skim ~2.5% from every transaction. (#30)](#32-frontrunners-can-skim-25-from-every-transaction-30)
+  * [3.3 Gaps in test coverage (#32)](#33-gaps-in-test-coverage-32)
+  * [3.4 Consider using transferFrom() in removeLiquidity() function (#31)](#34-consider-using-transferfrom-in-removeliquidity-function-31)
+  * [3.5 Different 'deadline' behaviour (#25)](#35-different-deadline-behaviour-25)
+  * [3.6 Redundant checks in factory contract (#24)](#36-redundant-checks-in-factory-contract-24)
+  * [3.7 The factory contract should use a constructor (#23)](#37-the-factory-contract-should-use-a-constructor-23)
 * [5 Tool based analysis](#5-tool-based-analysis)
   * [5.1 Mythril Classic](#51-mythril-classic)
   * [5.2 Harvey Fuzzer](#52-harvey-fuzzer)
@@ -176,13 +176,13 @@ The following table contains all the issues discovered during the audit. The iss
 
 | Chapter | Issue Title  | Issue Status | Severity |
 | ------------- | ------------- | ------------- | ------------- |
- | 3.1 | [Liquidity pool can be stolen in some tokens (e.g. ERC-777)](#31-liquidity-pool-can-be-stolen-in-some-tokens-(e-g--erc-777)) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/major.png"/> | 
- | 3.2 | [Frontrunners can skim ~2.5% from every transaction.](#32-frontrunners-can-skim-~2-5%-from-every-transaction-) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
- | 3.3 | [Gaps in test coverage](#33-gaps-in-test-coverage) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.4 | [Consider using transferFrom() in removeLiquidity() function](#34-consider-using-transferfrom()-in-removeliquidity()-function) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.5 | [Different 'deadline' behaviour](#35-different-deadline-behaviour) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.6 | [Redundant checks in factory contract](#36-redundant-checks-in-factory-contract) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
- | 3.7 | [The factory contract should use a constructor](#37-the-factory-contract-should-use-a-constructor) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.1 | [Liquidity pool can be stolen in some tokens (e.g. ERC-777)](#31-liquidity-pool-can-be-stolen-in-some-tokens-eg-erc-777-29) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/major.png"/> | 
+ | 3.2 | [Frontrunners can skim ~2.5% from every transaction.](#32-frontrunners-can-skim-25-from-every-transaction-30) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/medium.png"/> | 
+ | 3.3 | [Gaps in test coverage](#33-gaps-in-test-coverage-32) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.4 | [Consider using transferFrom() in removeLiquidity() function](#34-consider-using-transferfrom-in-removeliquidity-function-31) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.5 | [Different 'deadline' behaviour](#35-different-deadline-behaviour-25) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.6 | [Redundant checks in factory contract](#36-redundant-checks-in-factory-contract-24) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
+ | 3.7 | [The factory contract should use a constructor](#37-the-factory-contract-should-use-a-constructor-23) |  <img height="30px" src="static-content/open.png"/> |  <img height="30px" src="static-content/minor.png"/> | 
 
 
 
@@ -313,7 +313,8 @@ In `uniswap_factory.vy` there are some redundant assertions:
 
 
 
-[contracts/uniswap_factory.vy:L15](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15)
+[contracts/uniswap_factory.vy:L15](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L15
+)
 
 ```Solidity
     assert template != ZERO_ADDRESS
@@ -325,7 +326,8 @@ and
 
 
 
-[contracts/uniswap_factory.vy:L21](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21)
+[contracts/uniswap_factory.vy:L21](https://github.com/Uniswap/contracts-vyper/blob/957f7aba57cec5d87824312dd3dd6484e0220086/contracts/uniswap_factory.vy#L21
+)
 
 ```Solidity
     assert self.exchangeTemplate != ZERO_ADDRESS
@@ -337,7 +339,8 @@ Due to the fact that the Vyper compiler actually asserts that the code size at t
 
 
 
-[contracts/uniswap_factory.vy:L24](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24)
+[contracts/uniswap_factory.vy:L24](https://github.com/Uniswap/contracts-vyper/blob/master/contracts/uniswap_factory.vy#L24
+)
 
 ```Solidity
     Exchange(exchange).setup(token)
