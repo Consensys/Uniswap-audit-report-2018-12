@@ -1,9 +1,3 @@
-# TODOs: 
-
-* Ask GNSPS to confirm the delegate proxy thing
-* Ask Sergio to write a test of his attack
-* Ask Dean to write a test of his attack
-
 # Uniswap Audit
 
 
